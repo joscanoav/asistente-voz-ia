@@ -1,0 +1,20 @@
+{
+  "name": "voice-assistant-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "edge-tts-node": "^1.5.7",
+    "express": "^5.2.1",
+    "groq-sdk": "^1.2.1",
+    "msedge-tts": "^2.0.6"
+  }
+}
