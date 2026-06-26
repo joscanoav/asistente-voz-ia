@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import useVoiceChat from './hooks/useVoiceChat';
 import vegiaIdle from './assets/vegia-idle.png';
 import vegiaLoop from './assets/vegia-loop.gif';
@@ -18,81 +17,89 @@ export default function VideoCall() {
   } = useVoiceChat();
 
   const handleMicClick = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
+    if (isListening) stopListening();
+    else startListening();
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-between py-10 px-4">
+    <div className="w-full h-full flex flex-col items-center justify-evenly py-2 text-white">
 
-      {/* Contenedor IA (arriba, grande) */}
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="relative w-56 h-56">
+      {/* Avatar VegIA */}
+      <div className="flex flex-col items-center">
+        <div className="relative w-24 h-24 mb-1">
           <img
             src={isSpeaking ? vegiaLoop : vegiaIdle}
             alt="Profesor IA"
             className={`w-full h-full rounded-full object-cover border-4 transition-all duration-300 ${
               isSpeaking
-                ? 'border-green-400 animate-speak shadow-2xl shadow-green-500/50'
-                : 'border-gray-700'
+                ? 'border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)]'
+                : 'border-slate-600 shadow-md'
             }`}
           />
           {isThinking && (
-            <span className="absolute bottom-2 right-2 bg-yellow-400 w-5 h-5 rounded-full animate-pulse ring-2 ring-gray-900" />
+            <span className="absolute bottom-1 right-1 bg-yellow-400 w-3.5 h-3.5 rounded-full animate-pulse ring-2 ring-gray-900" />
           )}
         </div>
-        <h2 className="text-white text-xl font-semibold mt-4">Profesor IA</h2>
-
-        {/* Subtítulos de la respuesta */}
-        {lastReply && (
-          <p className="text-gray-300 text-center max-w-md mt-3 px-4">{lastReply}</p>
-        )}
-        {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
+        <h2 className="text-sm font-semibold text-slate-200">Profesor IA</h2>
       </div>
 
-      {/* Contenedor Usuario (abajo, pequeño) */}
-      <div className="flex flex-col items-center mb-6">
-        <div className="w-24 h-24">
+      {/* Texto dinámico */}
+      <div className="min-h-[36px] px-3 w-full text-center flex flex-col items-center justify-center">
+        {error ? (
+          <p className="text-red-400 text-xs">{error}</p>
+        ) : (
+          <>
+            {lastReply && (
+              <p className="text-slate-300 text-xs font-medium line-clamp-2 mb-1">{lastReply}</p>
+            )}
+            {transcript && (
+              <p className="text-slate-400 text-xs italic line-clamp-1">"{transcript}"</p>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Avatar Usuario */}
+      <div className="flex flex-col items-center">
+        <div className="w-14 h-14 mb-1">
           <img
             src={userAvatar}
             alt="Tú"
             className={`w-full h-full rounded-full object-cover border-2 transition-colors duration-300 ${
-              isListening ? 'border-green-400' : 'border-gray-600'
+              isListening ? 'border-green-400' : 'border-slate-600'
             }`}
           />
         </div>
-        <p className="text-gray-400 text-sm mt-2">
-          {transcript ? `"${transcript}"` : isListening ? 'Escuchando...' : 'Tú'}
+        <p className="text-xs text-slate-400">
+          {isListening ? 'Escuchando...' : 'Tú'}
         </p>
       </div>
 
-      {/* Barra de controles */}
-      <div className="flex items-center gap-8 bg-gray-800 px-10 py-5 rounded-full shadow-2xl">
+      {/* Controles compactos */}
+      <div className="flex items-center gap-5 bg-slate-800/80 px-6 py-2.5 rounded-full shadow-inner">
         <button
           onClick={handleMicClick}
-          className={`w-20 h-20 rounded-full flex items-center justify-center text-white transition-all duration-200 shadow-lg hover:scale-110 ${
+          className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-all duration-200 shadow-md hover:scale-110 ${
             isListening
-              ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-400/40'
-              : 'bg-gray-600 hover:bg-gray-500'
+              ? 'bg-green-600 hover:bg-green-500 ring-4 ring-green-500/30 animate-pulse'
+              : 'bg-slate-600 hover:bg-slate-500'
           }`}
           aria-label="Hablar"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-9 h-9" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 14a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3z" />
-            <path d="M19 11a1 1 0 10-2 0 5 5 0 01-10 0 1 1 0 10-2 0 7 7 0 006 6.93V20H8a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07A7 7 0 0019 11z" />
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
           </svg>
         </button>
 
         <button
           onClick={hangUp}
-          className="w-20 h-20 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center text-white transition-all duration-200 shadow-lg hover:scale-110"
+          className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center text-white transition-all duration-200 shadow-md hover:scale-110"
           aria-label="Colgar"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-9 h-9" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M21 15.46l-5.27-.61a1 1 0 00-.84.29l-2.36 2.36a14.94 14.94 0 01-6.03-6.03l2.36-2.37a1 1 0 00.29-.84L8.54 3.01A1 1 0 007.55 2H4.01a1 1 0 00-1 1.11C3.97 12.27 11.73 20 20.89 20.99A1 1 0 0022 19.99v-3.53a1 1 0 00-.99-1z" />
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
           </svg>
         </button>
       </div>

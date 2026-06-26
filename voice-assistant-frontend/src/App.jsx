@@ -1,5 +1,4 @@
-import VideoCall from './VideoCall';
-
+import LandingPage from './LandingPage';
 export default function App() {
-  return <VideoCall />;
+  return <LandingPage />;
 }
