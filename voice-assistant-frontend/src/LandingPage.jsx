@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Bot, X, Clock, Package, Sparkles, BookOpen, Users, GraduationCap, ChevronRight } from "lucide-react";
 import logo from "./assets/logo-nasa.png";
+import vegiaLoop from './assets/vegia-loop.gif';
+import vegiaIdle from './assets/vegia-idle.png';
 import VideoCall from "./VideoCall";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -396,12 +398,13 @@ export default function LandingPage() {
             {/* Panel header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow">
-                  <Bot size={16} className="text-white" />
-                </div>
-                <div>
+<img 
+  src={vegiaIdle} 
+  alt="VegIA" 
+  className="w-10 h-10 rounded-full object-cover object-top ring-2 ring-violet-400/50" 
+/>                <div>
                   <p className="text-sm font-bold text-white leading-tight">
-                    VegIA
+                    VegAI
                   </p>
                   <p className="text-xs text-slate-400">Asistente del Taller</p>
                 </div>
@@ -416,7 +419,9 @@ export default function LandingPage() {
             </div>
 
             {/* Panel content */}
-            <div className="flex-1 overflow-hidden p-2 flex flex-col justify-center items-center" style={{ minHeight: "420px" }}>
+            
+            <div className="flex-1 overflow-y-auto p-2 flex flex-col justify-center items-center" style={{ minHeight: "320px" }}>
+
             <VideoCall />
             </div>
           </div>
@@ -424,18 +429,27 @@ export default function LandingPage() {
       )}
 
       {/* FAB */}
-      <button
-        onClick={() => setChatOpen((prev) => !prev)}
-        className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-5 py-3.5 rounded-full shadow-xl text-white font-semibold text-sm transition-all duration-300 hover:scale-105 active:scale-95 ${
-          chatOpen
-            ? "bg-slate-800"
-            : "bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500"
-        }`}
-        aria-label="Abrir asistente VegIA"
-      >
-        {chatOpen ? <X size={18} /> : <Bot size={18} />}
-        <span>{chatOpen ? "Cerrar" : "Hablar con VegIA"}</span>
-      </button>
+{/* FAB */}
+<button
+  onClick={() => setChatOpen((prev) => !prev)}
+  className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-full shadow-xl text-white font-semibold text-sm transition-all duration-300 hover:scale-105 active:scale-95 ${
+    chatOpen
+      ? "bg-slate-800"
+      : "bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500"
+  }`}
+>
+  {chatOpen ? (
+    <>
+      <X size={18} />
+      <span>Cerrar</span>
+    </>
+  ) : (
+    <>
+      <img src={vegiaIdle} alt="VegIA" className="w-9 h-9 rounded-full object-contain bg-slate-800 ring-2 ring-white/30" />
+      <span>Hablar con VegAI</span>
+    </>
+  )}
+</button>
     </div>
   );
 }

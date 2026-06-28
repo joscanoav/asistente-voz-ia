@@ -13,6 +13,7 @@ export default function VideoCall() {
     error,
     startListening,
     stopListening,
+    stopAudio,
     hangUp,
   } = useVoiceChat();
 
@@ -26,15 +27,15 @@ export default function VideoCall() {
 
       {/* Avatar VegIA */}
       <div className="flex flex-col items-center">
-        <div className="relative w-24 h-24 mb-1">
+        <div className="relative w-28 h-28 mb-1">
           <img
             src={isSpeaking ? vegiaLoop : vegiaIdle}
             alt="Profesor IA"
-            className={`w-full h-full rounded-full object-cover border-4 transition-all duration-300 ${
-              isSpeaking
-                ? 'border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)]'
-                : 'border-slate-600 shadow-md'
-            }`}
+className={`w-full h-full rounded-full object-cover object-top border-4 transition-all duration-300 ${
+  isSpeaking
+    ? 'border-green-400 shadow-[0_0_20px_rgba(34,197,94,0.6)]'
+    : 'border-slate-600 shadow-md'
+}`}
           />
           {isThinking && (
             <span className="absolute bottom-1 right-1 bg-yellow-400 w-3.5 h-3.5 rounded-full animate-pulse ring-2 ring-gray-900" />
@@ -49,11 +50,18 @@ export default function VideoCall() {
           <p className="text-red-400 text-xs">{error}</p>
         ) : (
           <>
-            {lastReply && (
-              <p className="text-slate-300 text-xs font-medium line-clamp-2 mb-1">{lastReply}</p>
+            {isThinking && (
+              <p className="text-slate-500 text-xs animate-pulse">Pensando...</p>
+            )}
+            {!isThinking && lastReply && (
+              <p className="text-slate-300 text-xs font-medium line-clamp-2 mb-1">
+                {lastReply}
+              </p>
             )}
             {transcript && (
-              <p className="text-slate-400 text-xs italic line-clamp-1">"{transcript}"</p>
+              <p className="text-slate-400 text-xs italic line-clamp-1">
+                "{transcript}"
+              </p>
             )}
           </>
         )}
@@ -71,12 +79,18 @@ export default function VideoCall() {
           />
         </div>
         <p className="text-xs text-slate-400">
-          {isListening ? 'Escuchando...' : 'Tú'}
+          {isThinking
+            ? 'Procesando...'
+            : isListening
+            ? 'Escuchando...'
+            : 'Jorge · Anfitrión'}
         </p>
       </div>
 
-      {/* Controles compactos */}
-      <div className="flex items-center gap-5 bg-slate-800/80 px-6 py-2.5 rounded-full shadow-inner">
+      {/* Controles */}
+      <div className="flex items-center gap-4 bg-slate-800/80 px-6 py-2.5 rounded-full shadow-inner">
+
+        {/* Micrófono */}
         <button
           onClick={handleMicClick}
           className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-all duration-200 shadow-md hover:scale-110 ${
@@ -92,6 +106,19 @@ export default function VideoCall() {
           </svg>
         </button>
 
+        {isSpeaking && (
+          <button
+            onClick={stopAudio}
+            className="w-10 h-10 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-white transition-all duration-200 shadow-md hover:scale-110 ring-2 ring-slate-500"
+            aria-label="Parar audio"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <rect x="6" y="6" width="12" height="12" rx="2" />
+            </svg>
+          </button>
+        )}
+
+        {/* Colgar */}
         <button
           onClick={hangUp}
           className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center text-white transition-all duration-200 shadow-md hover:scale-110"
@@ -102,6 +129,7 @@ export default function VideoCall() {
               d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
           </svg>
         </button>
+
       </div>
     </div>
   );

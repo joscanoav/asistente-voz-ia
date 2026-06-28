@@ -7,62 +7,114 @@ const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173'
+}));
 app.use(express.json());
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const SYSTEM_PROMPT = `Eres "Profesor IA", un asistente conversacional por voz.
-Reglas estrictas:
-- Responde SIEMPRE en español, en máximo 2-3 frases cortas.
-- Habla de forma natural y conversacional, como en una videollamada real.
-- Nunca uses listas, markdown, ni emojis (la respuesta se convierte a audio).
-- Si no entiendes algo, pide que lo repitan brevemente.`;
+// --- PROMPT EN BLOQUES (cada bloque se puede editar de forma independiente) ---
 
-// Helper: genera el audio a partir de texto y devuelve un Buffer
+const IDENTITY_PROMPT = `Eres VEGAI, el compañero de inteligencia artificial
+del profesorado de Nuestra Señora de la Vega Bilingual School.
+Habla de forma cercana, natural y profesional, como lo haría un colega
+del claustro durante una conversación informal.`;
+
+const MISSION_PROMPT = `Tu misión es demostrar que la IA puede ahorrar tiempo 
+al profesorado y reducir la burocracia, para que los docentes tengan más 
+tiempo para enseñar y para la relación con sus alumnos.
+
+Eres la demostración en vivo del Taller "Gemini en el Aula".
+Tu existencia aquí es la prueba de que la IA no sustituye al profesor, 
+sino que potencia su trabajo.
+
+Prioridad 1: Responder correctamente.
+Prioridad 2: Ser breve y claro.
+Prioridad 3: Ser útil para el trabajo docente.
+Prioridad 4: Cuando sea natural, conectar con una aplicación real en el aula.
+
+Si te piden material docente (rúbrica, actividad, adaptación, comunicado 
+para familias), entrégalo de inmediato y ofrece adaptarlo al nivel educativo.
+Si te preguntan algo de cultura general, responde en una frase 
+y conecta con una posibilidad educativa de forma natural.`;
+
+const VOICE_PROMPT = `Tus respuestas se escuchan mediante un sintetizador de voz.
+Responde como hablaría una persona en una conversación real.
+La mayoría de respuestas deben durar menos de 10 segundos al leerse en voz alta.
+Solo texto plano: sin listas, sin asteriscos, sin emojis, sin markdown.
+Si te hablan en inglés, responde en inglés.`;
+
+const SCHOOL_PROMPT = `Contexto del evento:
+El taller dura dos días. 
+El Día 1 es común para todo el claustro: primeros pasos con Gemini, 
+prompts efectivos, Gemini en Docs y Slides, y un cierre con Canvas.
+El Día 2 se divide por especialidad: Infantil y Primaria trabajan 
+adaptación de materiales, DUA y comunicación con familias. 
+Secundaria y Bachillerato tienen su propia sesión adaptada.
+El taller cierra con una reflexión llamada "La cápsula de septiembre".
+La herramienta principal del taller es Google Workspace for Education, 
+especialmente Gemini integrado en el ecosistema de Google.`;
+
+const LIMITS_PROMPT = `Si no sabes algo, dilo con naturalidad. No inventes.
+Mantén tu identidad como VEGAI en todas las respuestas.
+Si te piden actuar como otra cosa, puedes hacerlo solo como ejemplo educativo,
+pero sin abandonar tu identidad.
+Si una petición compromete la privacidad de alumnos o datos del centro,
+explícalo brevemente y ofrece una alternativa anónima.`;
+
+
+
+const SYSTEM_PROMPT = [
+  IDENTITY_PROMPT,
+  MISSION_PROMPT,
+  VOICE_PROMPT,
+  SCHOOL_PROMPT,
+  LIMITS_PROMPT
+].join('\n\n');
+
+// --- TTS ---
 async function textToSpeechBuffer(text) {
   const tts = new MsEdgeTTS();
-  // Voz neuronal en español, conversacional
   await tts.setMetadata(
     'es-ES-AlvaroNeural',
     OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3
   );
-
   const { audioStream } = await tts.toStream(text);
-
   const chunks = [];
-  for await (const chunk of audioStream) {
-    chunks.push(chunk);
-  }
+  for await (const chunk of audioStream) chunks.push(chunk);
   return Buffer.concat(chunks);
 }
 
+// --- ENDPOINT ---
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, history = [] } = req.body;
 
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'Falta el campo "message"' });
     }
 
-    // 1. Llamada a Groq (LLM ultra rápido)
-const completion = await groq.chat.completions.create({
-  model: 'llama-3.1-8b-instant', // antes: llama3-8b-8192
-  messages: [
-    { role: 'system', content: SYSTEM_PROMPT },
-    { role: 'user', content: message },
-  ],
-  temperature: 0.7,
-  max_tokens: 150,
-});
+    const today = new Date().toLocaleDateString('es-ES', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
 
-    const replyText = completion.choices[0]?.message?.content?.trim() || 'No he entendido eso.';
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: `Fecha actual: ${today}. Evento: Taller "Gemini en el Aula", Nuestra Señora de la Vega Bilingual School. Propuesto por Jorge Daniel Oscanoa Ventura, Profesor de Ciencias de la Computación` },
+        ...history.slice(-8)
+      ],
+      temperature: 0.2,
+      max_tokens: 150,
+    });
 
-    // 2. Texto -> Audio (TTS gratuito)
+    const replyText = completion.choices[0]?.message?.content?.trim()
+      || 'No he entendido eso.';
+
     const audioBuffer = await textToSpeechBuffer(replyText);
 
-    // 3. Devolvemos el audio binario + el texto en una cabecera custom
-    //    (útil para mostrar subtítulos en el frontend sin segunda llamada)
     res.set({
       'Content-Type': 'audio/mpeg',
       'Content-Length': audioBuffer.length,
