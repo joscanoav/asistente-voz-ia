@@ -41,7 +41,7 @@ className={`w-full h-full rounded-full object-cover object-top border-4 transiti
             <span className="absolute bottom-1 right-1 bg-yellow-400 w-3.5 h-3.5 rounded-full animate-pulse ring-2 ring-gray-900" />
           )}
         </div>
-        <h2 className="text-sm font-semibold text-slate-200">Profesor IA</h2>
+        <h2 className="text-sm font-semibold text-slate-200">VegAI · Asistente del Taller</h2>
       </div>
 
       {/* Texto dinámico */}
