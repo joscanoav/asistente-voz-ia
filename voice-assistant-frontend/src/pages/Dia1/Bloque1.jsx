@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import userAvatar from '../../assets/jorge.png';
 
 // ─── Secciones del índice ─────────────────────────────────────────────────────
 const SECTIONS = [
@@ -498,9 +499,11 @@ export default function Bloque1() {
             </span>
           </div>
           <Card className="text-center space-y-4">
-            <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white text-3xl font-black shadow-xl">
-              JD
-            </div>
+            <img
+              src={userAvatar}
+              alt="Jorge Daniel Oscanoa"
+              className="w-24 h-24 mx-auto rounded-full object-cover shadow-xl border-4 border-white"
+            />
             <div>
               <h2 className="text-2xl font-black text-slate-900">Jorge Daniel Oscanoa</h2>
               <p className="text-blue-600 font-semibold text-sm mt-1">Profesor de Informática</p>

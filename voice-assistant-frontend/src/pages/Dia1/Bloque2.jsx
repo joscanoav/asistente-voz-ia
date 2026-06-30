@@ -815,9 +815,8 @@ export default function Bloque2() {
           <CierreNarrativo />
 
           <button
-            disabled
-            className="px-8 py-4 rounded-full bg-slate-900 text-white font-bold text-sm shadow-xl opacity-90 cursor-default"
-            title="Disponible próximamente"
+            onClick={() => navigate('/dia2')}
+            className="px-8 py-4 rounded-full bg-slate-900 text-white font-bold text-sm shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
           >
             Continuar al Día 2 →
           </button>
