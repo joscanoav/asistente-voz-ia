@@ -1,9 +1,11 @@
+import { Link } from 'react-router-dom';
 import { useState } from "react";
 import { Bot, X, Clock, Package, Sparkles, BookOpen, Users, GraduationCap, ChevronRight } from "lucide-react";
 import logo from "./assets/logo-nasa.png";
 import vegiaLoop from './assets/vegia-loop.gif';
 import vegiaIdle from './assets/vegia-idle.png';
 import VideoCall from "./VideoCall";
+
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -283,17 +285,30 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="backdrop-blur-sm bg-gradient-to-br from-blue-50 to-violet-50 border border-blue-100 rounded-2xl p-6 shadow-md text-left max-w-xl mx-auto">
-            <p className="text-sm font-bold text-blue-700 uppercase tracking-widest mb-2">
-              🎯 Objetivo
-            </p>
-            <p className="text-slate-700 text-sm leading-relaxed">
-              Un acercamiento 100% práctico y sin tecnicismos a la IA.{" "}
-              <strong>
-                No se trata de sustituir la experiencia del profesor, sino de potenciarla.
-              </strong>
-            </p>
-          </div>
+
+<div className="backdrop-blur-sm bg-gradient-to-br from-blue-50 to-violet-50 border border-blue-100 rounded-2xl p-6 shadow-md text-left max-w-xl mx-auto">
+  <p className="text-sm font-bold text-blue-700 uppercase tracking-widest mb-2">
+    🎯 Objetivo
+  </p>
+
+  <p className="text-slate-700 text-sm leading-relaxed">
+    Un acercamiento 100% práctico y sin tecnicismos a la IA.
+    <strong>
+      {" "}No se trata de sustituir la experiencia del profesor, sino de potenciarla.
+    </strong>
+  </p>
+
+  <div className="mt-8 flex justify-center">
+    <Link
+      to="/taller"
+      className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold text-base shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+    >
+      🚀 Acceder al Taller
+    </Link>
+  </div>
+</div>
+
+
         </section>
 
         {/* ── Día 1 ────────────────────────────────────────────────────────── */}
