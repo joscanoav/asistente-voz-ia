@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import userAvatar from '../../assets/jorge.png';
+import qrGemini from '../../assets/qr-gemini.png';
 
 // ─── Secciones del índice ─────────────────────────────────────────────────────
 const SECTIONS = [
@@ -765,14 +766,13 @@ export default function Bloque1() {
             "
           </blockquote>
 
-          {/* QR placeholder */}
-          <div className="mx-auto w-40 h-40 bg-white rounded-2xl flex flex-col items-center justify-center shadow-xl gap-2">
-            <div className="grid grid-cols-3 gap-1">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <div key={i} className={`w-8 h-8 rounded-sm ${[0,2,6,8,4].includes(i) ? 'bg-slate-900' : 'bg-slate-200'}`} />
-              ))}
-            </div>
-            <p className="text-xs text-slate-400 font-mono">Material del taller</p>
+          {/* QR real */}
+          <div className="mx-auto w-44 h-44 bg-white rounded-2xl flex items-center justify-center shadow-xl p-3">
+            <img
+              src={qrGemini}
+              alt="Código QR · Material del taller"
+              className="w-full h-full object-contain"
+            />
           </div>
           <p className="text-slate-400 text-sm">Escanea para acceder a los recursos del bloque</p>
 
