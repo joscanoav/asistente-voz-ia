@@ -1,32 +1,206 @@
-# Asistente de Voz IA — Profesor IA 🎙️
+# Gemini en el Aula · Plataforma de Formación Docente
 
-MVP de un asistente de voz conversacional con interfaz estilo videollamada (Google Meet / Founderz), construido con coste 0€ usando React, Node.js, Groq API y voces neuronales de Edge TTS.
+> Plataforma web interactiva para el taller "Gemini en el Aula" del colegio N.A.S.A. de la Vega Bilingual School, con asistente de voz IA integrado (VegAI).
+
+**Propuesto y desarrollado por:** Jorge Daniel Oscanoa Ventura — Profesor de Ciencias de la Computación
+
+---
+
+## ¿Qué es este proyecto?
+
+Una plataforma docente completa construida con coste 0€ que combina:
+
+- Una **landing page** oficial del taller con toda la información para el profesorado
+- Una **experiencia de formación interactiva** por bloques y días, diseñada para proyectarse en pantalla grande durante la formación presencial
+- **VegAI**, un asistente de voz conversacional con IA integrado directamente en la plataforma, que demuestra en vivo el potencial de la IA en educación
+
+---
 
 ## 🧱 Stack técnico
 
-- **Frontend**: React + Vite + TailwindCSS
-- **Backend**: Node.js + Express
-- **LLM**: Groq API (`llama-3.1-8b-instant`)
-- **STT (voz a texto)**: Web Speech API nativa del navegador
-- **TTS (texto a voz)**: `msedge-tts` (voces neuronales gratuitas de Microsoft Edge)
+### Frontend
+| Tecnología | Uso |
+|---|---|
+| React + Vite | Framework principal |
+| TailwindCSS | Estilos y diseño |
+| React Router DOM | Navegación entre páginas |
+| Web Speech API | STT nativo del navegador (voz → texto) |
+
+### Backend
+| Tecnología | Uso |
+|---|---|
+| Node.js + Express | Servidor API REST |
+| Groq API (`llama-3.1-8b-instant`) | Modelo de lenguaje (LLM) |
+| msedge-tts (`es-ES-AlvaroNeural`) | TTS neural gratuito (texto → voz) |
+
+---
 
 ## 📁 Estructura del repositorio (monorepo)
 
 ```
 asistente-voz-ia/
-├── voice-assistant-backend/    # API Express + Groq + TTS
-└── voice-assistant-frontend/   # Interfaz React (videollamada)
+├── voice-assistant-backend/        # API Express + Groq + TTS
+│   ├── server.js                   # Endpoint principal /api/chat
+│   └── .env                        # Variables de entorno (no incluido en git)
+│
+└── voice-assistant-frontend/       # Plataforma React completa
+    ├── public/
+    ├── src/
+    │   ├── assets/
+    │   │   ├── vegia-idle.png      # Avatar robot (reposo)
+    │   │   ├── vegia-loop.gif      # Avatar robot (hablando)
+    │   │   ├── user-avatar.png     # Foto del ponente
+    │   │   └── logo-nasa.png       # Logo del centro
+    │   ├── components/
+    │   │   ├── PageShell.jsx       # Layout base compartido
+    │   │   └── Placeholder.jsx     # Páginas en construcción
+    │   ├── hooks/
+    │   │   └── useVoiceChat.js     # Lógica completa del asistente de voz
+    │   ├── pages/
+    │   │   ├── Taller.jsx          # Índice del taller (/taller)
+    │   │   ├── Dia1/
+    │   │   │   ├── Dia1Index.jsx   # Índice Día 1 (/dia1)
+    │   │   │   ├── Bloque1.jsx     # Bloque 1 completo (/dia1/bloque1)
+    │   │   │   └── Bloque2.jsx     # Bloque 2 completo (/dia1/bloque2)
+    │   │   ├── Dia2/
+    │   │   │   ├── Dia2Index.jsx
+    │   │   │   ├── Primaria/
+    │   │   │   └── Secundaria/
+    │   │   ├── Recursos.jsx
+    │   │   └── VegAI.jsx
+    │   ├── LandingPage.jsx         # Página principal (/)
+    │   ├── VideoCall.jsx           # UI del widget VegAI
+    │   ├── App.jsx
+    │   └── main.jsx                # Configuración React Router
+    └── netlify.toml                # Redirects para React Router en producción
+```
+
+---
+
+## 🗺️ Arquitectura de rutas
+
+```
+/                       Landing Page oficial del taller
+/taller                 Índice de navegación del taller
+/dia1                   Índice del Día 1
+/dia1/bloque1           Experiencia inmersiva · Bloque 1 (08:30–10:30)
+/dia1/bloque2           Experiencia inmersiva · Bloque 2 (11:00–13:00)
+/dia2                   Índice del Día 2
+/dia2/primaria          Itinerario Infantil y Primaria
+/dia2/primaria/bloque1
+/dia2/primaria/bloque2
+/dia2/secundaria        Itinerario Secundaria y Bachillerato
+/dia2/secundaria/bloque1
+/dia2/secundaria/bloque2
+/recursos               Materiales del taller
+/vegai                  Asistente de voz IA
+```
+
+---
+
+## 🤖 VegAI — Asistente de Voz IA
+
+VegAI es el asistente conversacional por voz integrado en la plataforma. Su nombre viene de **Vega** (N.A.S.A. de la Vega) + **IA**.
+
+### Flujo técnico completo
+
+```
+Usuario habla
+    ↓
+Web Speech API (Chrome / Edge)  ← STT nativo, sin coste
+    ↓ texto transcrito
+useVoiceChat.js
+    ↓ POST /api/chat { message, history }
+Render — server.js (Express)
+    ↓                        ↓
+Groq API                 MsEdgeTTS
+llama-3.1-8b-instant     es-ES-AlvaroNeural
+temperature: 0.2         AUDIO_24KHZ_48KBITRATE_MONO_MP3
+max_tokens: 150
+    ↓                        ↓
+replyText ←————————————— audioBuffer MP3
+    ↓
+Respuesta HTTP:
+  Body     → MP3 binario
+  Header   → X-Reply-Text (texto codificado URI)
+    ↓
+Frontend:
+  → muestra texto en pantalla (transcript + lastReply)
+  → reproduce audio MP3
+  → activa GIF animado del robot (isSpeaking=true)
+  → para micrófono automáticamente (anti-eco)
+  → al terminar audio → reactiva micrófono
+```
+
+### System prompt — 5 bloques independientes
+
+```
+IDENTITY   VegAI, colega del claustro, tono cercano y profesional
+MISSION    Demostrar que la IA ahorra tiempo al profesorado
+VOICE      Respuestas cortas, sin markdown, sin emojis — optimizado para TTS
+SCHOOL     Contexto completo del taller "Gemini en el Aula"
+LIMITS     No inventa, mantiene identidad, respeta privacidad
+```
+
+### Anti-eco
+Cuando la IA habla (`isSpeaking = true`) el micrófono se detiene automáticamente para evitar que el audio de la respuesta se capture como nueva entrada. Se reactiva al terminar el audio.
+
+### Historial de conversación
+Gestionado en el cliente. Se envían los últimos 4 mensajes (2 turnos) en cada petición. Se limpia al colgar.
+
+---
+
+## ☁️ Despliegue en producción
+
+| Servicio | Plataforma | URL |
+|---|---|---|
+| Backend | Render (free tier) | `https://asistente-voz-ia.onrender.com` |
+| Frontend | Netlify | `https://geminienelaula.netlify.app` |
+
+### Backend en Render
+
+```
+New → Web Service → conecta repo GitHub
+Root Directory:   voice-assistant-backend
+Build Command:    npm install
+Start Command:    node server.js
+
+Variables de entorno:
+  GROQ_API_KEY    → tu clave de Groq Console
+  FRONTEND_URL    → https://geminienelaula.netlify.app
+  PORT            → 10000 (Render lo asigna automáticamente)
+```
+
+### Frontend en Netlify
+
+```
+Add new site → Import from Git → conecta repo
+Base directory:    voice-assistant-frontend
+Build command:     npm run build
+Publish directory: voice-assistant-frontend/dist
+
+Variables de entorno:
+  VITE_API_URL → https://asistente-voz-ia.onrender.com
+```
+
+### `netlify.toml` (necesario para React Router)
+
+```toml
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 ```
 
 ---
 
 ## 🚀 Cómo lanzarlo en local
 
-### Requisitos previos
+### Requisitos
 
 - Node.js 18 o superior
-- Una API key gratuita de [Groq Console](https://console.groq.com)
-- Navegador **Chrome o Edge** (Web Speech API no funciona bien en Firefox/Safari)
+- API key gratuita de [Groq Console](https://console.groq.com)
+- Chrome o Edge (Web Speech API no funciona en Firefox/Safari)
 
 ### 1. Clonar el repositorio
 
@@ -42,108 +216,72 @@ cd voice-assistant-backend
 npm install
 ```
 
-Crea un archivo `.env` en `voice-assistant-backend/` con:
+Crea `voice-assistant-backend/.env`:
 
-```
+```env
 GROQ_API_KEY=tu_api_key_de_groq
 PORT=3001
 FRONTEND_URL=http://localhost:5173
 ```
 
-Arranca el servidor:
-
 ```bash
 node server.js
+# → Servidor escuchando en puerto 3001
 ```
-
-Deberías ver: `Servidor escuchando en puerto 3001`
 
 ### 3. Frontend
 
-En otra terminal:
-
 ```bash
+# En otra terminal
 cd voice-assistant-frontend
 npm install
 ```
 
-Crea un archivo `.env` en `voice-assistant-frontend/` con:
+Crea `voice-assistant-frontend/.env`:
 
-```
+```env
 VITE_API_URL=http://localhost:3001
 ```
 
-Arranca la app:
-
 ```bash
 npm run dev
+# → http://localhost:5173
 ```
-
-Abre el navegador en `http://localhost:5173` (o el puerto que indique Vite).
-
-### 4. Permitir el micrófono
-
-El navegador pedirá permiso de micrófono al pulsar el botón de "Hablar". Acéptalo — sin esto la app no podrá escuchar.
-
----
-
-## ☁️ Despliegue en producción (gratis)
-
-| Servicio | Plataforma | Carpeta raíz |
-|---|---|---|
-| Backend | [Render](https://render.com) | `voice-assistant-backend` |
-| Frontend | [Netlify](https://netlify.com) | `voice-assistant-frontend` |
-
-### Backend en Render
-
-1. **New → Web Service** → conecta este repo de GitHub
-2. **Root Directory**: `voice-assistant-backend`
-3. **Build Command**: `npm install`
-4. **Start Command**: `node server.js`
-5. **Environment Variables**:
-   - `GROQ_API_KEY` = tu clave de Groq
-   - `FRONTEND_URL` = (se rellena después, con la URL de Netlify)
-6. Deploy → copia la URL generada (ej. `https://asistente-voz-ia.onrender.com`)
-
-> ⚠️ El free tier de Render "duerme" tras 15 min de inactividad. La primera petición tras dormir puede tardar 30-50s.
-
-### Frontend en Netlify
-
-1. **Add new site → Import an existing project** → conecta este repo
-2. **Base directory**: `voice-assistant-frontend`
-3. **Build command**: `npm run build`
-4. **Publish directory**: `voice-assistant-frontend/dist`
-5. **Environment Variables**:
-   - `VITE_API_URL` = la URL de Render (paso anterior, **sin** `/api/chat` al final)
-6. Deploy → copia la URL generada (ej. `https://asistente-voz-ia.netlify.app`)
-
-### Cerrar el círculo (CORS)
-
-Vuelve a Render → tu servicio → **Environment** → actualiza:
-
-```
-FRONTEND_URL = https://asistente-voz-ia.netlify.app
-```
-
-Guarda — Render redeploya automáticamente.
 
 ---
 
 ## ✅ Verificación post-despliegue
 
-- [ ] `curl https://tu-backend.onrender.com/api/chat -X POST -H "Content-Type: application/json" -d '{"message":"hola"}' --output test.mp3` descarga un audio válido
-- [ ] La app en Netlify carga sin errores de CORS en la consola del navegador
-- [ ] El micrófono pide permiso correctamente (requiere HTTPS, que Render/Netlify proveen por defecto)
-- [ ] `import.meta.env.VITE_API_URL` no es `undefined` en el frontend desplegado
+```bash
+# Comprobar que el backend responde con audio
+curl https://asistente-voz-ia.onrender.com/api/chat \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"message":"hola"}' \
+  --output test.mp3
+```
+
+- [ ] El archivo `test.mp3` se descarga y contiene audio válido
+- [ ] La app en Netlify carga sin errores de CORS en consola
+- [ ] El micrófono pide permiso al pulsar "Hablar con VegAI"
+- [ ] `import.meta.env.VITE_API_URL` no es `undefined` en producción
+- [ ] Las rutas `/taller`, `/dia1/bloque1`, etc. funcionan al recargar la página
 
 ---
 
-## 🐛 Problemas conocidos del MVP
+## ⚠️ Limitaciones conocidas
 
-- El TTS usa `msedge-tts`, una librería no oficial basada en ingeniería inversa del servicio "Read Aloud" de Edge — funcional para demos, no apta para producción real (sin SLA).
-- El modo always-on del micrófono puede colar algo de eco al inicio/final de cada respuesta de la IA, por la latencia de stop/start de la Web Speech API.
-- Render free tier tiene cold starts; considerar un plan de pago o un servicio "ping" externo si se necesita disponibilidad constante.
+| Limitación | Detalle |
+|---|---|
+| Cold start Render | Hasta 2 min de lag si el servidor lleva +15 min inactivo. Solución: hacer ping manual antes del taller o usar UptimeRobot |
+| Web Speech API | Solo Chrome y Edge. No funciona en Firefox ni Safari |
+| msedge-tts | Librería no oficial basada en ingeniería inversa del servicio "Read Aloud" de Edge. Funcional para demos, sin SLA para producción real |
+| Rate limit Groq | El plan gratuito tiene límite de requests/minuto. Con 30+ usuarios simultáneos puede saturarse |
+| Sin persistencia | El historial de VegAI vive en memoria del cliente. Se pierde al recargar |
+
+---
 
 ## 📄 Licencia
 
-Proyecto educativo de uso libre.
+Proyecto educativo de uso libre.  
+Desarrollado como demostración en vivo del taller **"Gemini en el Aula"** · N.A.S.A. de la Vega Bilingual School.
